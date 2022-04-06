@@ -3,6 +3,7 @@
 #include <LITTLEFS.h>
 #include "ParameterJWS.h"
 #include "ParameterAdmin.h"
+#include "Informasi.h"
 
 
 #define FORMAT_LITTLEFS_IF_FAILED true

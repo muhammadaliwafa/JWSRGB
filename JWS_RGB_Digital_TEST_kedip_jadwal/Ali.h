@@ -7,6 +7,8 @@ void kedip() {
     lastSecond = rDet;
     kdp = true;
     timerSave = nowmilis;
+//    Serial.println(virtualDisp->color333(0, 255,0));
+    
   }
   if ((nowmilis - timerSave) > 400) {
     kdp = false;

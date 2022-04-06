@@ -1,5 +1,5 @@
 
-int8_t SholatNow = -1;
+int8_t SholatNow = 1;
 
 uint8_t stimeInt[8][3]={
   {0,0,0},

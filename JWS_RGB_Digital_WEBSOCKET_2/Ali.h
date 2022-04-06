@@ -1,5 +1,4 @@
 bool kdp;
-
 void kedip() {
   static uint32_t   timerSave, lastSecond;
   uint32_t          nowmilis = millis();
@@ -8,7 +7,7 @@ void kedip() {
     kdp = true;
     timerSave = nowmilis;
   }
-  if ((nowmilis - timerSave) > 400) {
+  if ((nowmilis - timerSave) > 500) {
     kdp = false;
   }
 }
@@ -59,5 +58,4 @@ void jamAnalog(){
 //    virtualDisp->drawCircle(cx,cy,0,virtualDisp->color565(0,0,0));
 //    virtualDisp->drawCircle(cx,cy,2,virtualDisp->color565(0,255,0));
 //    virtualDisp->drawCircle(cx,cy,1,0B1111100000000000);//merah titik tengah
-
-  }
+}

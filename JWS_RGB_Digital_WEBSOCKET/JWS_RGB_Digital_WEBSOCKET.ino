@@ -20,6 +20,7 @@ MatrixPanel_I2S_DMA *dma_display = nullptr;
 VirtualMatrixPanel  *virtualDisp = nullptr;
 
 #include <Fonts/Font5x7.h>
+#include <Fonts/FreeMono9pt7b.h>
 #include <Fonts/BigNumber.h>
 #include <Fonts/FreeSerifBold9pt7b.h>
 #include <Fonts/FreeSerif9pt7b.h>
@@ -37,12 +38,38 @@ VirtualMatrixPanel  *virtualDisp = nullptr;
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
 #include <JadwalSholat.h>
+// Import required libraries
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
+// Replace with your network credentials
+const char* ssid = "SII-Cikunir";
+const char* password = "admin.admin";
+
+bool ledState = 0;
+//const int ledPin = 2;
+
+// Create AsyncWebServer object on port 80
+String textJln="Created by PT Solusi Intek Indonesia on Tytyan Kencana";
+int pTeks = textJln.length();
+
+void notifyClients(String x);
 #include "RTC.h"
 #include "Ali.h"
 #include "JWS.h"
+#include "Config.h"
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+#include "WebPage.h"
+#include "WebSocket.h"
 
 uint8_t lebar;
+
+uint8_t x = 8;
+uint8_t y = 35;
+uint8_t x_jadwal = 62;
+uint8_t y_jadwal = 19; 
 
 
 
@@ -53,8 +80,9 @@ uint8_t lebar;
  * Setup!
  **************************/
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("setup selesai");
+  
 
   //RTC
   mulaiRTC();
@@ -82,7 +110,7 @@ void setup() {
   dma_display = new MatrixPanel_I2S_DMA(mxconfig);
   
   // let's adjust default brightness to about 75%
-  dma_display->setBrightness8(72);    // range is 0-255, 0 - 0%, 255 - 100%
+  dma_display->setBrightness8(100);    // range is 0-255, 0 - 0%, 255 - 100%
 
   // Allocate memory and start DMA display
   if( not dma_display->begin() )
@@ -108,124 +136,80 @@ void setup() {
 //   virtualDisp->drawLine(0,0, virtualDisp->width()-1, virtualDisp->height()-1, virtualDisp->color565(255,255,255));
 
     lebar = virtualDisp->width();
-    
+//    virtualDisp->setTextSize(1);
+    setup_websocket();
    
   
 }
 
 void loop() {
+  ws.cleanupClients();
   BacaRTC();
   kedip();
-  virtualDisp->flipDMABuffer();    
-  //if ( !display->backbuffready() ) return;
-  //display->showDMABuffer();        
+  virtualDisp->flipDMABuffer();           
   virtualDisp->clearScreen(); 
-    
-  info("Created by PT Solusi Intek Indonesia on Tytyan Kencana", 62);
+//  virtualDisp->setTextSize(1);
+   
+  info(textJln, 59);
   virtualDisp->fillRect(0,40, 64, 61, 0B0000000000000000);
-  virtualDisp->drawCircle(31,32,31,0B1111111110000000);
-  virtualDisp->drawCircle(31,32,30,0B1111111110000000);
-  virtualDisp->drawCircle(31,32,28,0B1111001110101100);
+  virtualDisp->fillRect(184,40, 64, 30, 0B0000000000000000);
+  
+  
+  virtualDisp->drawCircle(31,32,31,0B0000011111100000);
+  virtualDisp->drawCircle(31,32,30,0B0000011111100000);
+  virtualDisp->drawCircle(31,32,28,0B0000011111100000);
 
-  virtualDisp->drawLine(8,23,54,23,virtualDisp->color333(7,7,0));
-  virtualDisp->drawLine(8,40,54,40,virtualDisp->color333(7,7,0));
-  
-//  virtualDisp->drawRect(1,1, 189, 61, 0B1111100000000000);
-//  virtualDisp->drawRect(2,2, 189, 61, 0B0000011111111111);
-   
-   
-  
-  static uint8_t x = 8;
-  static uint8_t y = 35;
-  static uint8_t x_jadwal = 62;
-  static uint8_t y_jadwal = 24; 
+  virtualDisp->drawLine(8,23,54,23,0B1111111111111111);
+  virtualDisp->drawLine(8,40,54,40,0B1111111111111111);
 
-   
+
+  virtualDisp->setTextColor( 0B0000011111100000);
+
   
-  virtualDisp->setFont(&BigNumber7pt7b);
-//  virtualDisp->setTextSize(1);  
+  virtualDisp->setFont(&BigNumber7pt7b); 
   virtualDisp->setTextColor( 0B1111111111111111); 
-//  virtualDisp->setCursor(x_jadwal+20, 11);
-//  virtualDisp->print("Masjid Jami' Alhuda Bittaqwa");
   
   virtualDisp->setCursor(x, y); 
   virtualDisp->printf("%02d %02d %02d", rJam, rMen, rDet);
+  virtualDisp->setTextColor(0B0000011111100000);
   if (kdp) {
-    virtualDisp->setTextColor( 0B0000011111100000);
     virtualDisp->setCursor(x+13, y); 
     virtualDisp->printf(":");
     virtualDisp->setCursor(x+30, y); 
     virtualDisp->printf(":");
   }  
-  
-//  jamAnalog();
-//  virtualDisp->fillRect(8,40, 47, 2, 0B1111111111111111);
-  
-  
-  
-
-//  
-  
-//  virtualDisp->setTextColor(0B1111100000000000);
-//  
-  
+  virtualDisp->setTextColor( 0B1111111111111111);
   
   virtualDisp->setFont(&Font5x78pt7b);
-  virtualDisp->setTextColor( 0B1111100000000000);
   virtualDisp->setCursor(26, 13);
   virtualDisp->printf("%02d", rTgl);
   virtualDisp->setCursor(23, 21);
   virtualDisp->printf(namaBulan[rBul]);
-  
+  virtualDisp->setCursor(18, 50);
+  virtualDisp->printf(namaHari[rHar]);
   virtualDisp->setCursor(x_jadwal+3, y_jadwal); 
-  virtualDisp->setTextColor( 0B0000011111100000);
 
-  
-  
-   
   virtualDisp->print("SUBUH    DHUHA   DZUHUR");
-//  virtualDisp->setCursor(x_jadwal+47, y_jadwal);
-//  virtualDisp->print("SUBUH");
-//  virtualDisp->setCursor(x_jadwal+47+40, y_jadwal);
-//  virtualDisp->print("DZUHUR");
 
   virtualDisp->setCursor(x_jadwal+3, y_jadwal+17);  
   virtualDisp->print("ASHAR  MAGHRIB   ISYA'");
-//  virtualDisp->setCursor(x_jadwal+41, y_jadwal+17);
-//  virtualDisp->print("MAGHRIB");
-//  virtualDisp->setCursor(x_jadwal+47+45, y_jadwal+17);
-//  virtualDisp->print("ISYA'");
-  
-  
-//  virtualDisp->setTextColor( 0B0000011111111111); 
   virtualDisp->setCursor(x_jadwal+4, y_jadwal+8);
   virtualDisp->printf("%02d:%02d    %02d:%02d    %02d:%02d", stimeInt[1][0], stimeInt[1][1], stimeInt[3][0], stimeInt[3][1], stimeInt[4][0], stimeInt[4][1]);
-//  virtualDisp->setCursor(x_jadwal+47, y_jadwal+8);
-//  virtualDisp->printf("%02d:%02d", 8, 8);
-//  virtualDisp->setCursor(x_jadwal+91, y_jadwal+8);
-//  virtualDisp->printf("%02d:%02d", 8, 8);
 
-  virtualDisp->setCursor(18, 50);
-  virtualDisp->printf(namaHari[rHar]);
 
   virtualDisp->setCursor(x_jadwal+4, y_jadwal+25);
   virtualDisp->printf("%02d:%02d    %02d:%02d    %02d:%02d", stimeInt[5][0], stimeInt[5][1], stimeInt[6][0], stimeInt[6][1], stimeInt[7][0], stimeInt[7][1]);
 
-//  virtualDisp->setTextColor( 0B0000011111100000);
+  virtualDisp->setTextColor(0B0000011111100000);
   virtualDisp->setCursor(x_jadwal-7, 8);
   virtualDisp->print("Masjid Jami' Alhuda Bittaqwa");
-//  virtualDisp->setCursor(x_jadwal+47, y_jadwal+25);
-//  virtualDisp->printf("%02d:%02d", 8, 8);
-//  virtualDisp->setCursor(x_jadwal+91, y_jadwal+25);
-//  virtualDisp->printf("%02d:%02d", 8, 8);
 
   
-
-//  virtualDisp->setFont(&BigNumber7pt7b);
+  if(kdp){
+    virtualDisp->fillRect(101,29, 44, 17, 0B0000000000000000);//isya'
+  }
   
 
-  
-  
 }
 
 void info(String msg, uint16_t y){
@@ -236,12 +220,13 @@ void info(String msg, uint16_t y){
   if((Tmr-lsRn)>30){
     lsRn = Tmr;
     x--;
-    if(x<(54*-5)){
+    if(x<(pTeks*(-5))){
       x=lebar;
     }
   }
-  virtualDisp->setFont(&FreeSerif9pt7b);
-  virtualDisp->setTextSize(1);
+  virtualDisp->setFont(&FreeMono9pt7b);
+//  virtualDisp->setTextSize(1);
   virtualDisp->setCursor(x, y); 
+  virtualDisp->setTextColor( 0B0000011111100000);
   virtualDisp->printf(msg.c_str());
 }

@@ -3,14 +3,10 @@
 #include <LITTLEFS.h>
 #include "ParameterJWS.h"
 #include "ParameterAdmin.h"
+#include "Informasi.h"
 
 
 #define FORMAT_LITTLEFS_IF_FAILED true
-
-
-
-
-
 
 const char *fileDisplay = "/parameter_Display.json";
 struct parameterDisplay{
@@ -52,8 +48,6 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
 
 void writeFile(fs::FS &fs, const char * path, const char * message){
     Serial.printf("Writing file: %s\r\n", path);
-
-
 
     File file = fs.open(path, FILE_WRITE);
     if(!file){

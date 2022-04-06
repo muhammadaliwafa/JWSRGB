@@ -1,5 +1,5 @@
 
-int8_t SholatNow = -1;
+int8_t SholatNow = 1;
 
 uint8_t stimeInt[8][3]={
   {0,0,0},
@@ -30,6 +30,7 @@ void updateJWS(){
   float koreksi = 2;
   koreksi = (float)koreksi/60;
   sholatCal(rTah, rBul, rTgl, 7, -7.199509,108.191037, 45);
+//  sholatCal(rTah, rBul, rTgl, p_admin.z_w, p_admin.lat, p_admin.lon, 45);
   for(int i=0; i<=7; i++){
   float   stime   = waktuSholat(i)+koreksi;
   stimeFloat[i] = stime;

@@ -1,5 +1,4 @@
 bool kdp;
-
 void kedip() {
   static uint32_t   timerSave, lastSecond;
   uint32_t          nowmilis = millis();
@@ -7,8 +6,10 @@ void kedip() {
     lastSecond = rDet;
     kdp = true;
     timerSave = nowmilis;
+//    Serial.println(virtualDisp->color333(0, 255,0));
+    
   }
-  if ((nowmilis - timerSave) > 400) {
+  if ((nowmilis - timerSave) > 500) {
     kdp = false;
   }
 }

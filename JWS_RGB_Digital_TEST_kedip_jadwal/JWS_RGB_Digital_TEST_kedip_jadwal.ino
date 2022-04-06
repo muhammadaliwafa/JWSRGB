@@ -44,6 +44,11 @@ RtcDS3231<TwoWire> Rtc(Wire);
 
 uint8_t lebar;
 
+uint8_t x = 8;
+uint8_t y = 35;
+uint8_t x_jadwal = 62;
+uint8_t y_jadwal = 19; 
+
 
 
 
@@ -82,7 +87,7 @@ void setup() {
   dma_display = new MatrixPanel_I2S_DMA(mxconfig);
   
   // let's adjust default brightness to about 75%
-  dma_display->setBrightness8(72);    // range is 0-255, 0 - 0%, 255 - 100%
+  dma_display->setBrightness8(100);    // range is 0-255, 0 - 0%, 255 - 100%
 
   // Allocate memory and start DMA display
   if( not dma_display->begin() )
@@ -108,6 +113,7 @@ void setup() {
 //   virtualDisp->drawLine(0,0, virtualDisp->width()-1, virtualDisp->height()-1, virtualDisp->color565(255,255,255));
 
     lebar = virtualDisp->width();
+//    virtualDisp->setTextSize(1);
     
    
   
@@ -120,30 +126,33 @@ void loop() {
   //if ( !display->backbuffready() ) return;
   //display->showDMABuffer();        
   virtualDisp->clearScreen(); 
-    
-  info("Created by PT Solusi Intek Indonesia on Tytyan Kencana", 62);
+  virtualDisp->setTextSize(1);
+   
+  info("Created by PT Solusi Intek Indonesia on Tytyan Kencana", 59);
   virtualDisp->fillRect(0,40, 64, 61, 0B0000000000000000);
-  virtualDisp->drawCircle(31,32,31,0B1111111110000000);
-  virtualDisp->drawCircle(31,32,30,0B1111111110000000);
-  virtualDisp->drawCircle(31,32,28,0B1111001110101100);
-
-  virtualDisp->drawLine(8,23,54,23,virtualDisp->color333(7,7,0));
-  virtualDisp->drawLine(8,40,54,40,virtualDisp->color333(7,7,0));
+  virtualDisp->fillRect(184,40, 64, 30, 0B0000000000000000);
   
+  
+  virtualDisp->drawCircle(31,32,31,0B0000011111100000);
+  virtualDisp->drawCircle(31,32,30,0B0000011111100000);
+  virtualDisp->drawCircle(31,32,28,0B0000011111100000);
+
+  virtualDisp->drawLine(8,23,54,23,0B1111111111111111);
+  virtualDisp->drawLine(8,40,54,40,0B1111111111111111);
+
+
+  virtualDisp->setTextColor( 0B0000011111100000);
 //  virtualDisp->drawRect(1,1, 189, 61, 0B1111100000000000);
 //  virtualDisp->drawRect(2,2, 189, 61, 0B0000011111111111);
    
    
   
-  static uint8_t x = 8;
-  static uint8_t y = 35;
-  static uint8_t x_jadwal = 62;
-  static uint8_t y_jadwal = 24; 
+  
 
    
   
-  virtualDisp->setFont(&BigNumber7pt7b);
-//  virtualDisp->setTextSize(1);  
+  virtualDisp->setFont(&BigNumber7pt7b); 
+//  virtualDisp->setTextSize(1);
   virtualDisp->setTextColor( 0B1111111111111111); 
 //  virtualDisp->setCursor(x_jadwal+20, 11);
 //  virtualDisp->print("Masjid Jami' Alhuda Bittaqwa");
@@ -151,7 +160,7 @@ void loop() {
   virtualDisp->setCursor(x, y); 
   virtualDisp->printf("%02d %02d %02d", rJam, rMen, rDet);
   if (kdp) {
-    virtualDisp->setTextColor( 0B0000011111100000);
+//    virtualDisp->setTextColor(0B1111111111111111);
     virtualDisp->setCursor(x+13, y); 
     virtualDisp->printf(":");
     virtualDisp->setCursor(x+30, y); 
@@ -171,14 +180,16 @@ void loop() {
   
   
   virtualDisp->setFont(&Font5x78pt7b);
-  virtualDisp->setTextColor( 0B1111100000000000);
+//  virtualDisp->setTextColor( 0B1111111111111111);
   virtualDisp->setCursor(26, 13);
   virtualDisp->printf("%02d", rTgl);
   virtualDisp->setCursor(23, 21);
   virtualDisp->printf(namaBulan[rBul]);
+  virtualDisp->setCursor(18, 50);
+  virtualDisp->printf(namaHari[rHar]);
   
   virtualDisp->setCursor(x_jadwal+3, y_jadwal); 
-  virtualDisp->setTextColor( 0B0000011111100000);
+//  virtualDisp->setTextColor( 0B0000011111100000);
 
   
   
@@ -205,19 +216,28 @@ void loop() {
 //  virtualDisp->setCursor(x_jadwal+91, y_jadwal+8);
 //  virtualDisp->printf("%02d:%02d", 8, 8);
 
-  virtualDisp->setCursor(18, 50);
-  virtualDisp->printf(namaHari[rHar]);
+//  virtualDisp->setCursor(18, 50);
+//  virtualDisp->printf(namaHari[rHar]);
 
   virtualDisp->setCursor(x_jadwal+4, y_jadwal+25);
   virtualDisp->printf("%02d:%02d    %02d:%02d    %02d:%02d", stimeInt[5][0], stimeInt[5][1], stimeInt[6][0], stimeInt[6][1], stimeInt[7][0], stimeInt[7][1]);
 
-//  virtualDisp->setTextColor( 0B0000011111100000);
+  virtualDisp->setTextColor(0B0000011111100000);
   virtualDisp->setCursor(x_jadwal-7, 8);
   virtualDisp->print("Masjid Jami' Alhuda Bittaqwa");
 //  virtualDisp->setCursor(x_jadwal+47, y_jadwal+25);
 //  virtualDisp->printf("%02d:%02d", 8, 8);
 //  virtualDisp->setCursor(x_jadwal+91, y_jadwal+25);
 //  virtualDisp->printf("%02d:%02d", 8, 8);
+  
+//  if(kdp){
+//    virtualDisp->fillRect(149,12, 39, 16, 0B0000000000000000);//dzuhur
+//    virtualDisp->fillRect(96,12, 44, 16, 0B0000000000000000);//dhuha
+//    virtualDisp->fillRect(65,12, 44, 16, 0B0000000000000000);//subuh
+//    virtualDisp->fillRect(65,30, 33, 16, 0B0000000000000000);//ashar
+//    virtualDisp->fillRect(148,29, 40, 17, 0B0000000000000000);//isya'
+//    virtualDisp->fillRect(101,29, 44, 17, 0B0000000000000000);//maghrib
+//  }
 
   
 
@@ -241,7 +261,8 @@ void info(String msg, uint16_t y){
     }
   }
   virtualDisp->setFont(&FreeSerif9pt7b);
-  virtualDisp->setTextSize(1);
+//  virtualDisp->setTextSize(1);
   virtualDisp->setCursor(x, y); 
+  virtualDisp->setTextColor( 0B0000011111100000);
   virtualDisp->printf(msg.c_str());
 }

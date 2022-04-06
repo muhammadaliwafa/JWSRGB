@@ -3,10 +3,6 @@
 #include <LITTLEFS.h>
 #include <ArduinoJson.h>
 #include "FSConfig.h"
-//#include "Informasi.h"
-
-
-const char *fileInfo = "/paranter_Admin.json";
 
 void setup() {
   Serial.begin(115200);
@@ -23,7 +19,7 @@ void setup() {
   
   writeFile(LITTLEFS, filejws,p_defaultJWS().c_str());
   writeFile(LITTLEFS, fileAdmin,p_defaultAdmin().c_str());
-  wiriteFile(LITTLEFS, fileInfo,p_defaultInfo().c_str());
+  writeFile(LITTLEFS, fileInfo,p_defaultInfo().c_str());
   listDir(LITTLEFS, "/", 1);
   readFileJWS(LITTLEFS, filejws);
   readFileAdmin(LITTLEFS, fileAdmin);
@@ -57,6 +53,8 @@ void setup() {
   
 
   deleteFile(LITTLEFS, filejws);
+  deleteFile(LITTLEFS, fileAdmin);
+  deleteFile(LITTLEFS, fileInfo);
   listDir(LITTLEFS, "/", 1);
   
 //  DynamicJsonDocument doc(1024);

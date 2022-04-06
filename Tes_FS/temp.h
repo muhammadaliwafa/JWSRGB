@@ -1,0 +1,17 @@
+  defaultJWS += "\"versi\":\"1\",";
+  defaultJWS += "\"is\":\"12\",";
+  defaultJWS += "\"id\":\"8\",";
+  defaultJWS += "\"ia\":\"6\",";
+  defaultJWS += "\"im\":\"5\",";
+  defaultJWS += "\"ii\":\"5\",";
+  defaultJWS += "\"durasiAdzan\":\"4\",";
+  defaultJWS += "\"f_ws\":\"2\",";
+  defaultJWS += "\"f_hjr\":\"0\",";
+  defaultJWS += "\"ringimsyak\":0,";
+  defaultJWS += "\"disppuasa\":1,";
+  defaultJWS += "\"dispsplash\":1,";
+  defaultJWS += "\"info1\":\"Mushola Al-Furqon\",";
+  defaultJWS += "\"info2\":\"Mohon Matikan Alat Komunikasi\",";
+  defaultJWS += "\"info3\":\"Informasi 3\",";
+  defaultJWS += "\"info3\":\"Informasi 4\",";
+  defaultJWS += "\"durasikutbah\":45}";
