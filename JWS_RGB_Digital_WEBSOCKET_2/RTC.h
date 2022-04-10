@@ -7,19 +7,19 @@ char namaBulan[][4] = { "DES", "JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", 
 char hariHijriah[][8] = {"AHAD", "ISNAIN", "SULASA", "ARBI'A", "KHAMIS", "JUMU'AH", "SABT", "AHAD"};
 //char bulanHijriah[][4] = { "ZLH", "MUH", "SAF", "RAW", "RAK", "JUW", "JUK", "RAJ", "SYB", "RAM", "SYW", "ZLK", "ZLH" };
 char bulanHijriah[][14] = {
-                       "Zulhijjah",
-                       "Muharram", 
-                       "Shafar", 
-                       "Rabi'ul Awal", 
-                       "Rabi'ul Akhir", 
-                       "Jumadil Awal", 
-                       "Jumadil Akhir", 
-                       "Rajab",
-                       "Sya'ban",
-                       "Ramadhan", 
-                       "Syawal", 
-                       "Zulqaidah", 
-                       };
+  "Zulhijjah",
+  "Muharram",
+  "Shafar",
+  "Rabi'ul Awal",
+  "Rabi'ul Akhir",
+  "Jumadil Awal",
+  "Jumadil Akhir",
+  "Rajab",
+  "Sya'ban",
+  "Ramadhan",
+  "Syawal",
+  "Zulqaidah",
+};
 
 uint8_t rJam;
 uint8_t rMen;
@@ -30,7 +30,7 @@ uint8_t rBul;
 uint16_t rTah;
 float floatnow;
 int celsius;
-uint8_t LDet=0;
+uint8_t LDet = 0;
 
 // PrayerTimes
 //double times[sizeof(TimeName)/sizeof(char*)];
@@ -40,10 +40,10 @@ uint8_t LDet=0;
 // I2C_ClearBus menghindari gagal baca RTC (nilai 00 atau 165)
 
 int I2C_ClearBus() {
-  
-  #if defined(TWCR) && defined(TWEN)
-    TWCR &= ~(_BV(TWEN)); //Disable the Atmel 2-Wire interface so we can control the SDA and SCL pins directly
-  #endif
+
+#if defined(TWCR) && defined(TWEN)
+  TWCR &= ~(_BV(TWEN)); //Disable the Atmel 2-Wire interface so we can control the SDA and SCL pins directly
+#endif
 
   pinMode(SDA, INPUT_PULLUP); // Make SDA (data) and SCL (clock) pins Inputs with pullup.
   pinMode(SCL, INPUT_PULLUP);
@@ -55,7 +55,7 @@ int I2C_ClearBus() {
   // before existing sketch confuses the IDE by sending Serial data.
 
   boolean SCL_LOW = (digitalRead(SCL) == LOW); // Check is SCL is Low.
-  if (SCL_LOW) { //If it is held low Arduno cannot become the I2C master. 
+  if (SCL_LOW) { //If it is held low Arduno cannot become the I2C master.
     return 1; //I2C bus error. Could not clear SCL clock line held low
   }
 
@@ -64,7 +64,7 @@ int I2C_ClearBus() {
 
   while (SDA_LOW && (clockCount > 0)) { //  vii. If SDA is Low,
     clockCount--;
-  // Note: I2C bus is open collector so do NOT drive SCL or SDA high.
+    // Note: I2C bus is open collector so do NOT drive SCL or SDA high.
     pinMode(SCL, INPUT); // release SCL pullup so that when made output it will be LOW
     pinMode(SCL, OUTPUT); // then clock SCL Low
     delayMicroseconds(10); //  for >5uS
@@ -101,7 +101,7 @@ int I2C_ClearBus() {
   pinMode(SDA, INPUT); // and reset pins as tri-state inputs which is the default state on reset
   pinMode(SCL, INPUT);
   return 0; // all ok
-  
+
 }
 
 
@@ -112,31 +112,31 @@ void mulaiRTC() {
 
   int rtn = I2C_ClearBus(); // clear the I2C bus first before calling Wire.begin()
   if (rtn != 0) {
-    Serial.println(F("I2C bus error. Could not clear"));
+        Serial.println(F("I2C bus error. Could not clear"));
     if (rtn == 1) {
-      Serial.println(F("SCL clock line held low"));
+            Serial.println(F("SCL clock line held low"));
     } else if (rtn == 2) {
-      Serial.println(F("SCL clock line held low by slave clock stretch"));
+            Serial.println(F("SCL clock line held low by slave clock stretch"));
     } else if (rtn == 3) {
-      Serial.println(F("SDA data line held low"));
+            Serial.println(F("SDA data line held low"));
     }
   } else { // bus clear, re-enable Wire, now can start Wire Arduino master
     Wire.begin();
   }
-  
+
   Rtc.Begin();
 
   if (!Rtc.GetIsRunning()) {
-    
+
     Rtc.SetIsRunning(true);
-    
+
   }
-  
+
   Rtc.Enable32kHzPin(false);
   Rtc.SetSquareWavePin(DS3231SquareWavePin_ModeNone);
-  
-  Serial.println("Setup RTC selesai");
-  
+
+//    Serial.println("Setup RTC selesai");
+
 }
 
 
@@ -154,5 +154,5 @@ void BacaRTC() {
   rHar = sekarang.DayOfWeek();
   rBul = sekarang.Month();
   rTah = sekarang.Year();
-  floatnow = (float)rJam + (float)rMen/60 + (float)rDet/3600;
+  floatnow = (float)rJam + (float)rMen / 60 + (float)rDet / 3600;
 }
