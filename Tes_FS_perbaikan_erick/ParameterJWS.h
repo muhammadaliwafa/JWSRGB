@@ -1,50 +1,51 @@
 const char *filejws = "/parameter_JWS.json";
 
-struct parameterJWS{
+struct parameterJWS {
   uint8_t versi;
   uint8_t is; // iqomah subuh
-  uint8_t id; 
+  uint8_t id;
   uint8_t ia;
   uint8_t im;
   uint8_t ii;
   uint8_t durasiAdzan;
   uint8_t f_ws;//faktor penambah waktu sholat
+  uint8_t durasikutbah;
   uint8_t f_hjr;
+  bool dispiqmh;
+  bool dispimsyak;
   bool ringimsyak;
   bool disppuasa;
-  bool dispsplash; 
-  char info1[512];
-  char info2[512];
-  char info3[512];
-  char info4[512];
-  uint8_t durasikutbah;
-  
+  bool dispdhuha;
+  bool dispterbit;
+  bool dispsplash;
+
 }; parameterJWS p_jws;
 
 
-String p_defaultJWS(){
-  String defaultJWS = "{";
-  defaultJWS += "\"versi\":\"1\",";
-  defaultJWS += "\"is\":\"12\",";
-  defaultJWS += "\"id\":\"8\",";
-  defaultJWS += "\"ia\":\"6\",";
-  defaultJWS += "\"im\":\"5\",";
-  defaultJWS += "\"ii\":\"5\",";
-  defaultJWS += "\"durasiAdzan\":\"4\",";
-  defaultJWS += "\"f_ws\":\"2\",";
-  defaultJWS += "\"f_hjr\":\"0\",";
-  defaultJWS += "\"ringimsyak\":0,";
-  defaultJWS += "\"disppuasa\":1,";
-  defaultJWS += "\"dispsplash\":1,";
-  defaultJWS += "\"info1\":\"Mushola Al-Furqon\",";
-  defaultJWS += "\"info2\":\"Mohon Matikan Alat Komunikasi\",";
-  defaultJWS += "\"info3\":\"Informasi 3\",";
-  defaultJWS += "\"info4\":\"Informasi 4\",";
-  defaultJWS += "\"durasikutbah\":45}";
+String p_defaultJWS() {
+  String defaultJWS = "";
+  defaultJWS += "1*";
+  defaultJWS += "12*";
+  defaultJWS += "8*";
+  defaultJWS += "6*";
+  defaultJWS += "5*";
+  defaultJWS += "5*";
+  defaultJWS += "45*";
+  defaultJWS += "2*";
+  defaultJWS += "4*";
+  defaultJWS += "0*";
+  defaultJWS += "true*";
+  defaultJWS += "true*";
+  defaultJWS += "true*";
+  defaultJWS += "true*";
+  defaultJWS += "true*";
+  defaultJWS += "true*";
+  defaultJWS += "true";
+  Serial.println(defaultJWS);
   return defaultJWS;
 }
 
-void print_p_jws(){
+void print_p_jws() {
   Serial.println();
   Serial.println("===================== PARAMETER JWS ==================");
   Serial.println();
@@ -55,16 +56,16 @@ void print_p_jws(){
   Serial.printf("jeda iqomah maghrib \t : %d\n", p_jws.im);
   Serial.printf("jeda iqomah isya' \t : %d\n", p_jws.ii);
   Serial.printf("durasi adzan \t\t : %d\n", p_jws.durasiAdzan);
-  Serial.printf("faktor waktu Sholat \t : %d\n", p_jws.f_ws);
   Serial.printf("faktor Hijriah \t\t : %d\n", p_jws.f_hjr);
+  Serial.printf("durasi kutbah \t\t : %d\n", p_jws.durasikutbah);
+  Serial.printf("faktor waktu Sholat \t : %d\n", p_jws.f_ws);
+  Serial.printf("display iqomah \t\t : %d\n", p_jws.dispiqmh);
+  Serial.printf("display imsyak \t\t : %d\n", p_jws.dispimsyak);
   Serial.printf("ring imsyak \t\t : %d\n", p_jws.ringimsyak);
   Serial.printf("display puasa \t\t : %d\n", p_jws.disppuasa);
+  Serial.printf("display dhuha \t\t : %d\n", p_jws.dispdhuha);
+  Serial.printf("display terbit \t\t : %d\n", p_jws.dispterbit);
   Serial.printf("display splash screen\t : %d\n", p_jws.dispsplash);
-  Serial.printf("info 1 \t\t\t : %s\n", p_jws.info1);
-  Serial.printf("info 2 \t\t\t : %s\n", p_jws.info2);
-  Serial.printf("info 3 \t\t\t : %s\n", p_jws.info3);
-  Serial.printf("info 4 \t\t\t : %s\n", p_jws.info4);
-  Serial.printf("durasi kutbah \t\t : %d\n", p_jws.durasikutbah);  
 }
 
 void readFileJWS(fs::FS &fs, const char * path){
@@ -80,30 +81,29 @@ void readFileJWS(fs::FS &fs, const char * path){
 //        Serial.write(file.read());
 //    }
 
-    size_t size = file.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    file.readBytes(buf.get(), size);
-
-    DynamicJsonDocument doc(1024);
-    DeserializationError error = deserializeJson(doc, buf.get()); 
-    char a[512];
-    p_jws.versi         = doc["versi"];
-    p_jws.is            = doc["is"];
-    p_jws.id            = doc["id"];
-    p_jws.ia            = doc["ia"];
-    p_jws.im            = doc["im"];
-    p_jws.ii            = doc["ii"];
-    p_jws.durasiAdzan   = doc["durasiAdzan"];
-    p_jws.f_ws          = doc["f_ws"];
-    p_jws.f_hjr         = doc["f_hjr"];
-    p_jws.ringimsyak    = doc["ringimsyak"];
-    p_jws.disppuasa     = doc["disppuasa"];
-    p_jws.dispsplash    = doc["dispsplash"];
-    strlcpy(p_jws.info1, doc["info1"] | "", sizeof(p_jws.info1));
-    strlcpy(p_jws.info2, doc["info2"] | "", sizeof(p_jws.info2));
-    strlcpy(p_jws.info3, doc["info3"] | "", sizeof(p_jws.info3));
-    strlcpy(p_jws.info4, doc["info4"] | "", sizeof(p_jws.info4));
-    p_jws.durasikutbah  = doc["durasikutbah"];
+    String hasil[17];
+  String pesan = file.readString();
+  for(int i=0;i<17;i++){
+    hasil[i] = parsing(pesan);
+      Serial.println(hasil[i]);
+  }
+  p_jws.versi         = hasil[0].toInt();
+  p_jws.is            = hasil[1].toInt();
+  p_jws.id            = hasil[2].toInt();
+  p_jws.ia            = hasil[3].toInt();
+  p_jws.im            = hasil[4].toInt();
+  p_jws.ii            = hasil[5].toInt();
+  p_jws.durasiAdzan   = hasil[6].toInt();
+  p_jws.f_ws          = hasil[7].toInt();;
+  p_jws.durasikutbah  = hasil[8].toInt();;
+  p_jws.f_hjr         = hasil[9].toInt();;
+  p_jws.dispiqmh      = (hasil[10]=="true");
+  p_jws.dispimsyak    = (hasil[11]=="true");
+  p_jws.ringimsyak    = (hasil[12]=="true");
+  p_jws.disppuasa     = (hasil[13]=="true");
+  p_jws.dispdhuha     = (hasil[14]=="true");
+  p_jws.dispterbit    = (hasil[15]=="true");
+  p_jws.dispsplash    = (hasil[16]=="true");
 
     file.close();
     print_p_jws();

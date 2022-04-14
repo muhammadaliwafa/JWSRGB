@@ -1,6 +1,11 @@
 #include <Arduino.h>
 #include "FS.h"
 #include <LITTLEFS.h>
+String parsing(String& pesan){
+  String a=pesan.substring(0, pesan.indexOf("*"));
+  pesan = pesan.substring(pesan.indexOf("*")+1);
+  return a;
+}
 #include "ParameterJWS.h"
 #include "ParameterAdmin.h"
 #include "Informasi.h"
@@ -12,8 +17,6 @@ const char *fileDisplay = "/parameter_Display.json";
 struct parameterDisplay{
   uint8_t keccerahan;
 }; parameterDisplay p_d;
-
-
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\r\n", dirname);
