@@ -16,7 +16,7 @@ void Disp_Iqmh(uint16_t y){
   virtualDisp->setCursor(70, y);
   virtualDisp->printf("Iqomah : %02d", hitung);
   hitung--;
-  if(hitung==0){
+  if(hitung<=0){
     iqmh=false;
   }
 }

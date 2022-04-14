@@ -205,7 +205,7 @@ void loop() {
             break;
         }
         digitalWrite(buzzer, HIGH);
-      } else if (iqmh & kdp) {
+      } else if (iqmh) {
         Disp_Iqmh(59);
         digitalWrite(buzzer, LOW);
       } else {
