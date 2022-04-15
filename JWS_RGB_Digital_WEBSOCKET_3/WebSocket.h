@@ -220,7 +220,7 @@ void setup_websocket() {
   unsigned long st = millis();
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    //    Serial.println("Connecting to WiFi..");
+        Serial.println("Connecting to WiFi..");
     if (millis() - st > 10000) {
       break;
     }
@@ -228,8 +228,9 @@ void setup_websocket() {
   if (WiFi.status() == WL_CONNECTED) {
 //    Serial.print("MAC: ");
 //    Serial.println(WiFi.macAddress());
-//    Serial.print("IP: ");
-//    Serial.println(WiFi.localIP().toString());
+    Serial.print("IP: ");
+    String ip = WiFi.localIP().toString();
+    Serial.println(ip);
   } else {
     WiFi.mode(WIFI_AP);
     a = (p_admin.ap).length()+1;
@@ -242,8 +243,8 @@ void setup_websocket() {
     WiFi.softAP(e, f);
 //    Serial.print("MAC: ");
 //    Serial.println(WiFi.macAddress());
-//    Serial.print("IP: ");
-//    Serial.println(local_ip);
+    Serial.print("IP: ");
+    Serial.println(local_ip);
   }
 
   initWebSocket();

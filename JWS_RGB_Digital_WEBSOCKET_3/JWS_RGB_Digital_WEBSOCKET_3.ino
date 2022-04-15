@@ -20,16 +20,19 @@ VirtualMatrixPanel  *virtualDisp = nullptr;
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
 #include <JadwalSholat.h>
-// DFPlayer
-#include "Arduino.h"
-#include <DFRobotDFPlayerMini.h>
-DFRobotDFPlayerMini myDFPlayer;
+//// DFPlayer
+//#include "Arduino.h"
+//#include <DFRobotDFPlayerMini.h>
+//DFRobotDFPlayerMini myDFPlayer;
+
 
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <LITTLEFS.h>
 #include <ArduinoJson.h>
+
+#include <SoftwareSerial.h>
 
 //const char* ssid = "SII-Cikunir";
 //const char* password = "admin.admin";
@@ -99,6 +102,7 @@ int p_atur[2];
 //}; parameterAtur p_atur;
 
 #include "Config.h"
+#include "DFplayer.h"
 #include "DF.h"
 #include "RTC.h"
 #include "Ali.h"
@@ -110,6 +114,7 @@ AsyncWebSocket ws("/ws");
 #include "WebPage.h"
 #include "WebSocket.h"
 #include "Disp.h"
+
 
 uint8_t cursor_block[8][4] {
   {0, 0, 0, 0},
@@ -136,7 +141,8 @@ void setup() {
   readFileAdmin(LITTLEFS, fileAdmin);
   readFileInfo(LITTLEFS, fileInfo);
   readFileAtur(LITTLEFS, fileAtur);
-  setDF();
+//  setDF();
+  setupDFplayer();
   mulaiRTC();
   BacaRTC();
   updateJWS();
@@ -160,6 +166,7 @@ void setup() {
   lebar = virtualDisp->width();
 
   setup_websocket();
+  
   lsKdp = kdp;
   virtualDisp->setTextColor(0B1111111111111111);
 }
