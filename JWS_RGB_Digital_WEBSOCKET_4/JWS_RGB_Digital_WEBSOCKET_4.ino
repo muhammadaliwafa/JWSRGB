@@ -29,6 +29,7 @@ RtcDS3231<TwoWire> Rtc(Wire);
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h>
 #include <LITTLEFS.h>
 #include <ArduinoJson.h>
 
@@ -112,8 +113,9 @@ AsyncWebSocket ws("/ws");
 #include "FSconfig.h"
 #include "JWS.h"
 #include "WebPage.h"
-#include "WebSocket.h"
 #include "Disp.h"
+#include "WebSocket.h"
+
 
 
 
@@ -166,14 +168,17 @@ void loop() {
   ws.cleanupClients();
   if(!batas){
     //tanda terima data dari web
-    if (tndaBuzzer) {
-      digitalWrite(buzzer, HIGH);
+    if (jumlah_beep>0) {
+      
       if (millis() - time2 >= 500) {
+        time2=millis();
         tndaBuzzer = false;
-        digitalWrite(buzzer, LOW);
+        jumlah_beep--;
+//        digitalWrite(buzzer, LOW);
       }
+      digitalWrite(buzzer, jumlah_beep%2);
     }
-    UpdateWaktu();
+    BacaRTC();
     kedip();
     virtualDisp->flipDMABuffer();
     virtualDisp->clearScreen();

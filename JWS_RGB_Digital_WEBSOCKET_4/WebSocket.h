@@ -2,7 +2,7 @@ IPAddress local_ip(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);
 IPAddress netmask(255, 255, 255, 0);
 
-bool tndaBuzzer = false;
+
 bool batas=false;
 
 void notifyClients(String x, String y) {
@@ -169,8 +169,7 @@ void handleWebSocketMessage(void *arg, unsigned char *data, size_t len) {
           batas=false;
           break;
       }
-      tndaBuzzer = true;
-      time2 = millis();
+      buzz(1);
     }
   }
 }
@@ -257,6 +256,7 @@ void setup_websocket() {
     request->send_P(200, "text/html", index_html, processor);
   });
 
+  AsyncElegantOTA.begin(&server);
   // Start server
   server.begin();
 }

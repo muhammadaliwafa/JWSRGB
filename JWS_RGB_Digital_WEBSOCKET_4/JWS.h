@@ -54,7 +54,7 @@ void updateJWS() {
   }
   for (int i = 0; i <= 7; i++) {
     char  out[21];
-    sprintf(out, "%s,%02d:%02d:%02d", namaWaktuSholat[i], stimeInt[i][0], stimeInt[i][1], stimeInt[i][2]);
+    sprintf(out, "%s\t%02d:%02d:%02d", namaWaktuSholat[i], stimeInt[i][0], stimeInt[i][1], stimeInt[i][2]);
     Serial.println(out);
   }
   waktuSholatNow();
@@ -62,10 +62,8 @@ void updateJWS() {
 }
 
 void UpdateWaktu(){
-  static uint8_t lastTgl;
-  static uint8_t lastMnt;
-  
-  BacaRTC();
+  static uint8_t lastTgl;  
+//  BacaRTC();
   if(lastTgl!=rTgl){
     updateJWS();
 //    TanggalHijriah();
@@ -89,7 +87,7 @@ void aturBlynk() {
   }
 }
 
-int timer_iqomah(){
+uint8_t timer_iqomah(){
   int x=0;
   switch (SholatNow) {
     case 1:
@@ -113,21 +111,15 @@ int timer_iqomah(){
   return x;
 }
 
-void disableAzzan() {
+void disableAzzan(uint8_t& cycl) {
   if (azzan) {
     float durasiazz = p_jws.durasiAdzan;
     durasiazz = durasiazz / 60;
-    //    Serial.println(durasiazz);
-    //      if(SholatNow==0){
-    //          if(floatnow>(stimeFloat[SholatNow]+durasiazz)){
-    //          azzan = false;
-    //          Serial.println("adzan false");
-    //        }
-    //      }
     if (floatnow > (stimeFloat[SholatNow] + durasiazz)) {
       azzan = false;
       tarhim = false;
-//      hIqmh=5*60;
+      if(!jumat)cycl=0;
+
       Serial.println("adzan false");
     }
   }
@@ -137,12 +129,13 @@ void disableAzzan() {
 
     if (floatnow > (stimeFloat[SholatNow] + durasiktbh)) {
       jumat = false;
+      cycl=0;
     }
   }
 
 }
 void check_azzan(uint8_t& cycl, int8_t& n_b) {
-  disableAzzan();
+//  disableAzzan(cycl);
   for (int i = 0; i <= 7; i++) {
     if (!p_jws.dispimsyak and i == 0) { //optional skip imsyak
       i++;
@@ -166,9 +159,10 @@ void check_azzan(uint8_t& cycl, int8_t& n_b) {
 //        }
         blynk = true;
         azzan = true;
+        n_b=10;
         cycl = 50;
 //        hitung=hmundur();
-      }else if (!azzan && (selisih >= -0.083) && (selisih <= -0.063)&&(i!=0)&&(i!=2)&&(i!=3)) {
+      }else if (!azzan && (selisih >= -0.083) && (selisih < 0)&&(i!=0)&&(i!=2)&&(i!=3)) {
         runtarhim();
 //        digitalWrite(buzzer, HIGH);
       }
@@ -179,21 +173,6 @@ void check_azzan(uint8_t& cycl, int8_t& n_b) {
 
 
 void resetJumat(){
-  String a = "9Khutbah Jumat --";
+  String a = "Khutbah Jumat --";
   gantiInfo(LITTLEFS, fileInfo, a);
-}
-void tekanTombol(uint8_t& cycl){
-  static bool state = false;
-  bool out=digitalRead(tombol);
-//  Serial.println(out);
-  if(out){
-    state=HIGH;
-  }
-  if(state){
-    if(!out){
-      iqmh=true;
-      cycl++;
-      state=LOW;
-    }
-  }
 }

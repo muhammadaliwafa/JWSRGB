@@ -2,6 +2,8 @@ uint8_t x = 8;
 uint8_t y = 35;
 uint8_t x_jadwal = 62;
 uint8_t y_jadwal = 19;
+int8_t jumlah_beep = 0;
+bool tndaBuzzer = false;
 
 String tampil_waktu[]={"Waktu Imsyak", "Waktu Adzan", "Waktu Adzan", "Waktu Dhuha", "Waktu Adzan", "Waktu Adzan", "Waktu Adzan", "Waktu Adzan"};
 
@@ -15,7 +17,10 @@ uint8_t cursor_block[8][4] {
   {103, 30, 41, 15},
   {157, 29, 26, 16}
 };
-
+void buzz(int8_t n){
+  time2 = millis();
+  jumlah_beep=(n*2)-1;
+}
 void Disp_Azzan(String x, uint16_t y) {
   virtualDisp->setFont(&FreeMono9pt7b);
   //  virtualDisp->setTextSize(1);
@@ -62,20 +67,26 @@ void Disp_Info(String msg, uint16_t y, uint8_t& cycl) {
   virtualDisp->fillRect(0, y - 11, 64, 15, 0B0000000000000000);
   virtualDisp->fillRect(184, y - 11, 8, 15, 0B0000000000000000);
 }
-void tampilIqomah(uint16_t y, uint8_t& cycl){
+void tampilIqomah(uint16_t y, uint8_t& cycl, bool rst){
   static bool lKdp=kdp;
-  static int8_t i_menit = 0;
-  static int8_t i_detik = 54;
-  static bool rst=true;
+  static int8_t i_menit = timer_iqomah();
+  static int8_t i_detik = 0;
+//  static bool rst1=true;
   if(rst){
-    i_menit = 0;
-    i_detik = 54;
-    rst = false;
+    i_menit = timer_iqomah();
+    if(i_menit<=0){
+      cycl--;
+//      rst1=false;
+      return;
+    }
+    i_detik = 0;
+//    rst = false;
   }
   virtualDisp->setFont(&FreeMono9pt7b);
   //  virtualDisp->setTextSize(1);
   virtualDisp->setCursor(65, y);
   virtualDisp->printf("Iqomah : %02d:%02d", i_menit, i_detik);
+  if(kdp)virtualDisp->fillRect(65, 49, 60, 14, 0B0000000000000000);
   if(lKdp!=kdp){
     lKdp=kdp;
     
@@ -85,13 +96,38 @@ void tampilIqomah(uint16_t y, uint8_t& cycl){
       i_menit--;
       if(i_menit<0){
         cycl++;
-        rst = true;
+//        buzz(3);
         return;
       }
       i_detik=59;
     }
   }
   
+}
+
+void tekanTombol(uint8_t& cycl){
+  static bool state = false;
+  bool out=digitalRead(tombol);
+//  Serial.println(out);
+  if(out){
+    state=HIGH;
+  }
+  if(state){
+    if(!out){
+      if(!iqmh){
+        iqmh=true;
+        cycl++;
+        tampilIqomah(59, cycl, true);
+        buzz(1);
+      }else{
+        iqmh=false;
+        cycl--;
+        buzz(1);
+      }
+      
+      state=LOW;
+    }
+  }
 }
 
 void sebelumSholat(String msg, uint16_t y, uint8_t& cycl){
@@ -103,15 +139,18 @@ void sebelumSholat(String msg, uint16_t y, uint8_t& cycl){
   if(rst){
     pTeks = msg.length();
     beep_sholat = 3;
-    rst = false;
+    buzz(3);
+    rst=false;
   }
   if ((Tmr - lsRn) > 30) {
     lsRn = Tmr;
     x--;
     if (x < (pTeks * (-9))) {
       x = lebar;
-      cycl=51;
+      cycl++;
       rst=true;
+      azzan = false;
+      tarhim = false;
       return;
     }
   }
@@ -124,7 +163,7 @@ void sebelumSholat(String msg, uint16_t y, uint8_t& cycl){
 }
 
 void cycle_info(){
-  static uint8_t cycle=50;
+  static uint8_t cycle=0;
   static int8_t n_beep=10;
   if (lsKdp != kdp) {
     lsKdp = kdp;
@@ -165,7 +204,7 @@ void cycle_info(){
     case 50:
       static bool lKdp=kdp;
       tekanTombol(cycle);
-      disableAzzan();
+      disableAzzan(cycle);
       if(jumat)return;
       !kdp ? Disp_Azzan(tampil_waktu[SholatNow], 59) : virtualDisp->fillRect(cursor_block[SholatNow][0], cursor_block[SholatNow][1], cursor_block[SholatNow][2], cursor_block[SholatNow][3], 0B0000000000000000);
       if(lKdp!=kdp){
@@ -182,10 +221,18 @@ void cycle_info(){
       }
       break;
     case 51:
-      tampilIqomah(59, cycle);
+      tekanTombol(cycle);
+      tampilIqomah(59, cycle, false);
       break;
     case 52:
       sebelumSholat("Lurus dan Rapatkan Shaf Demi Kesempurnaan Sholat Berjamaah", 59,  cycle);
+      break;
+    case 100:
+      virtualDisp->setFont(&FreeMono9pt7b);
+  //  virtualDisp->setTextSize(1);
+      virtualDisp->setCursor(65, 59);
+      virtualDisp->printf("Iqomah : %02d:%02d", 5, 5);
+      virtualDisp->fillRect(65, 49, 60, 14, 0B1111111111111111);
       break;
     default:
       cycle = 0;
@@ -215,6 +262,7 @@ void tengah(int x, String y){
   virtualDisp->setCursor(tngh, x);
   virtualDisp->print(namaHari[rHar]);
 }
+
 
 void Disp_Jam() {
   virtualDisp->drawCircle(31, 32, 31, 0B0000011111100000);

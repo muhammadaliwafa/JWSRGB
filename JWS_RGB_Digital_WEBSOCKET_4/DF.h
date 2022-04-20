@@ -3,7 +3,7 @@ bool tarhim = false;
 void runtarhim() {
   if (!tarhim) {
     Serial.println("********** TARHIM **********");
-    myDFPlayer.playMp3Folder(1);
+    myDFPlayer.playMp3Folder(3);
     tarhim = true;
 
   }
@@ -17,5 +17,5 @@ void setDF(){
   delay(500);
   myDFPlayer.volume(p_atur[1]);
   delay(200);
-  myDFPlayer.playMp3Folder(2);
+  myDFPlayer.playMp3Folder(3);
 }
