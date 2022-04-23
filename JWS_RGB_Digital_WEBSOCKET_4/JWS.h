@@ -18,6 +18,16 @@ float stimeFloat[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 char dispNJadwal[] = "";
 
+
+// UPDATE HISAB TANGGAL
+
+F1kM_Hisab HisabTanggal;
+
+int Hjr_Date, Hjr_Month, Hjr_Year;
+uint8_t Hjr_Hari;
+
+
+
 void waktuSholatNow() {
   for (int i = 7; i >= 0; i--) {
     //    Serial.println(waktuSholat(i));
@@ -61,12 +71,38 @@ void updateJWS() {
   //  sprintf(dispNJadwal, " Shubuh %02d:%02d  Dzuhur %02d:%02d ",stimeInt[1][0], stimeInt[1][1],stimeInt[4][0], stimeInt[4][1]);
 }
 
+
+void TanggalHijriah() {
+  HisabTanggal.setLocationOnEarth(p_admin.lat, p_admin.lon); //Latitude Longitude TANGERANG
+  HisabTanggal.setHilalVisibilityFactor(p_admin.hilal);
+  uint8_t tgl2H=rTgl;
+  uint8_t bulan2H=rBul;
+  uint16_t tahun2H=rTah;
+  uint8_t Day2H=rHar;
+  
+//  Serial.println(Hjr_Day);
+  
+  if(floatnow>stimeFloat[6]){
+    //Serial.println("masuk");
+    nextDay(rJam,tgl2H,bulan2H,tahun2H,tgl2H,bulan2H,tahun2H,Day2H);
+    HisabTanggal.Greg2HijrDate(tgl2H,bulan2H,tahun2H,Hjr_Date,Hjr_Month,Hjr_Year);
+    Hjr_Hari = Day2H;
+  }else{
+    HisabTanggal.Greg2HijrDate(tgl2H,bulan2H,tahun2H,Hjr_Date,Hjr_Month,Hjr_Year);
+    Hjr_Hari = rHar + 1;
+  }
+//  Serial.println(Hjr_Day);
+  
+  
+
+}
+
 void UpdateWaktu(){
   static uint8_t lastTgl;  
-//  BacaRTC();
+  BacaRTC();
   if(lastTgl!=rTgl){
     updateJWS();
-//    TanggalHijriah();
+    TanggalHijriah();
     lastTgl=rTgl;
   }
   
@@ -119,7 +155,6 @@ void disableAzzan(uint8_t& cycl) {
       azzan = false;
       tarhim = false;
       if(!jumat)cycl=0;
-
       Serial.println("adzan false");
     }
   }
@@ -152,7 +187,7 @@ void check_azzan(uint8_t& cycl, int8_t& n_b) {
       if (!azzan and (selisih >= 0) and (selisih <= 0.02)) {
         SholatNow = i;
         if (i == 6) {
-          //TanggalHijriah();// mengganti penanggalan hijriah
+          TanggalHijriah();// mengganti penanggalan hijriah
         }
 //        if (rHar == 5 and SholatNow == 4) {
 //          jumat = true;

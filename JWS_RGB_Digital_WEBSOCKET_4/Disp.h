@@ -37,36 +37,15 @@ void Disp_Azzan(String x, uint16_t y) {
 //    iqmh=false;
 //  }
 //}
-
-void Disp_Info(String msg, uint16_t y, uint8_t& cycl) {
-  if(!dInfo[cycl]){
-    cycl++;
-    return;
-  }
-  uint32_t Tmr = millis();
-  static uint32_t lsRn;
-  static int16_t x = lebar;
-  static bool rst=true;
-  if(rst){
-    pTeks = msg.length();
-    rst = false;
-  }
-  if ((Tmr - lsRn) > 30) {
-    lsRn = Tmr;
-    x--;
-    if (x < (pTeks * (-9))) {
-      x = lebar;
-      cycl++;
-      rst=true;
-    }
-  }
-  virtualDisp->setFont(&FreeMono9pt7b);
-  //  virtualDisp->setTextSize(1);
-  virtualDisp->setCursor(x, y);
-  virtualDisp->printf(msg.c_str());
-  virtualDisp->fillRect(0, y - 11, 64, 15, 0B0000000000000000);
-  virtualDisp->fillRect(184, y - 11, 8, 15, 0B0000000000000000);
+int16_t textWidth(const char* text)
+{
+  int16_t x1, y1;
+  uint16_t w, h;
+  virtualDisp->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  return w;
 }
+
+
 void tampilIqomah(uint16_t y, uint8_t& cycl, bool rst){
   static bool lKdp=kdp;
   static int8_t i_menit = timer_iqomah();
@@ -162,6 +141,83 @@ void sebelumSholat(String msg, uint16_t y, uint8_t& cycl){
   virtualDisp->fillRect(184, y - 11, 8, 15, 0B0000000000000000);
 }
 
+void Disp_Info(String msg, uint16_t y, uint8_t& cycl) {
+//  bool a = bitRead(bit_data, cycl);
+//  Serial.printf("%d  %d\n", cycl, a);
+  if(!bitRead(bit_data, cycl)){
+    cycl++;
+    return;
+  }
+  uint32_t Tmr = millis();
+  static uint32_t lsRn;
+  static int16_t x = lebar;
+  static int16_t txt_bnd;
+  static bool rst=true;
+  if(rst){
+    pTeks = msg.length()*(-7);
+    lsRn = Tmr;
+    x = lebar;
+//    txt_bnd = textWidth(msg.c_str());
+    rst = false;
+  }
+  if ((Tmr - lsRn) > 15) {
+    lsRn = Tmr;
+    x--;
+    if (x < pTeks) {
+      cycl++;
+      rst=true;
+    }
+  }
+  virtualDisp->setFont(&FreeSerif9pt7b);
+//    virtualDisp->setTextSize(1);
+  virtualDisp->setCursor(x, y);
+  virtualDisp->print(msg.c_str());
+  virtualDisp->fillRect(0, y - 12, 64, 17, 0B0000000000000000);
+  virtualDisp->fillRect(184, y - 12, 8, 17, 0B0000000000000000);
+}
+
+void info_puasa(uint16_t y, uint8_t& cycl){
+  static String msg = "";
+  uint32_t Tmr = millis();
+  static uint32_t lsRn;
+  static int16_t x = lebar;
+  static bool rst=true;
+  static uint8_t i_p;
+  static int16_t s_pTeks;
+  if(!p_jws.disppuasa){
+    cycl++;
+    return;
+  }
+  if(rst){
+    i_p = check_puasa();
+    if(i_p==0){
+      cycl++;
+      rst = true;
+      return;
+    }
+    msg = String(namaPuasa[i_p-1]);
+    x = lebar;
+    s_pTeks = *(&namaPuasa[i_p-1] + 1) - namaPuasa[i_p-1];
+    rst = false;
+  }
+  
+  
+  if ((Tmr - lsRn) > 15) {
+    lsRn = Tmr;
+    x--;
+    if (x < (s_pTeks * (-9))) {
+      cycl++;
+      rst=true;
+    }
+  }
+  virtualDisp->setFont(&FreeSerif9pt7b);
+//    virtualDisp->setTextSize(1);
+  virtualDisp->setCursor(x, y);
+  virtualDisp->print(msg.c_str());
+  virtualDisp->fillRect(0, y - 12, 64, 17, 0B0000000000000000);
+  virtualDisp->fillRect(184, y - 12, 8, 17, 0B0000000000000000);
+}
+
 void cycle_info(){
   static uint8_t cycle=0;
   static int8_t n_beep=10;
@@ -200,6 +256,12 @@ void cycle_info(){
       break;
     case 9:
       Disp_Info(String(p_info.info10), 59, cycle);
+      break;
+    case 10:
+      Serial.println("dieksekusi");
+      info_puasa(59, cycle);
+//      Disp_Info(String(namaPuasa[4]), 59, cycle);
+//      cycle++;
       break;
     case 50:
       static bool lKdp=kdp;
@@ -254,7 +316,7 @@ void Disp_Main() {
   virtualDisp->printf("%02d:%02d    %02d:%02d    %02d:%02d", stimeInt[5][0], stimeInt[5][1], stimeInt[6][0], stimeInt[6][1], stimeInt[7][0], stimeInt[7][1]);
   virtualDisp->setTextColor(0B0000011111100000);
   virtualDisp->setCursor(x_jadwal - 7, 8);
-  virtualDisp->print("Masjid Jami' Alhuda Bittaqwa");
+  virtualDisp->print("Musholla Al-Muhajirin");
 }
 
 void tengah(int x, String y){

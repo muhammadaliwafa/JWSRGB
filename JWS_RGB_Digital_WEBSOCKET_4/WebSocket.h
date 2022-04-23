@@ -119,7 +119,9 @@ void handleDtext(String x){
    String a = x.substring(0,1);
    String b = x.substring(1);
    int c = a.toInt();
-   dInfo[c]=(b=="true");
+//   Serial.println(b);
+//   dInfo[c]=(b=="true");
+   bitWrite(bit_data, c, (b=="true"));
 }
 
 void handleWebSocketMessage(void *arg, unsigned char *data, size_t len) {

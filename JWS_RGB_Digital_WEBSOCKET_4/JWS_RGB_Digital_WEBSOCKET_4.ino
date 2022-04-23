@@ -20,6 +20,8 @@ VirtualMatrixPanel  *virtualDisp = nullptr;
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
 #include <JadwalSholat.h>
+#include <F1kM_Hisab.h>
+#include <TimeLib.h>//menghitung hari berikutnya untuk perhitungan hijriah
 //// DFPlayer
 //#include "Arduino.h"
 //#include <DFRobotDFPlayerMini.h>
@@ -46,7 +48,8 @@ uint8_t tombol = 34;
 
 //int hitung;
 //int hIqmh = 0;
-bool dInfo[] = {false, false, false, false, false, false, false, false, false, true};
+bool dInfo[] = {true, false, false, false, false, false, false, false, false, false};
+uint16_t bit_data = 0B1100001000000001;
 
 //LittleFS
 struct parameterJWS {
@@ -111,10 +114,14 @@ int p_atur[2];
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 #include "FSconfig.h"
+#include "Hijriah.h"
 #include "JWS.h"
+#include "Puasa.h"
 #include "WebPage.h"
 #include "Disp.h"
 #include "WebSocket.h"
+
+
 
 
 
@@ -168,19 +175,19 @@ void loop() {
   ws.cleanupClients();
   if(!batas){
     //tanda terima data dari web
-    if (jumlah_beep>0) {
-      
+    if (jumlah_beep>0) {   
       if (millis() - time2 >= 500) {
         time2=millis();
         tndaBuzzer = false;
         jumlah_beep--;
-//        digitalWrite(buzzer, LOW);
       }
       digitalWrite(buzzer, jumlah_beep%2);
     }
-    BacaRTC();
+//    BacaRTC();
+    UpdateWaktu();
     kedip();
     virtualDisp->flipDMABuffer();
+//    if ( !virtualDisp->backbuffready() ) return;
     virtualDisp->clearScreen();
     Disp_Main();
     cycle_info();
